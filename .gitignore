@@ -1,0 +1,5 @@
+node_modules/
+cert/
+*.geany
+options.json
+package-lock.json
