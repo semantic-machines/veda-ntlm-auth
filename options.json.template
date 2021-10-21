@@ -1,0 +1,18 @@
+{
+  "ldap": {
+    "url": "ldap://some-ldap-server.domain.tld",
+    "bindDN": "domain\\bindDN",
+    "bindCredentials": "password",
+    "base": "DC=domain,DC=tld",
+    "searchBase": "DC=domain,DC=tld",
+    "searchFilter": "(cn={{username}})"
+  },
+  "veda": {
+    "url": "veda-system.domain.tld",
+    "port": 80,
+    "username": "admin-user-name",
+    "password": "password",
+    "cert": "./certificate-authority.crt"
+  },
+  "listen": 8081
+}
