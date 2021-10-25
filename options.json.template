@@ -3,12 +3,14 @@
     "url": "ldap://some-ldap-server.domain.tld",
     "bindDN": "domain\\bindDN",
     "bindCredentials": "password",
-    "base": "DC=domain,DC=tld",
     "searchBase": "DC=domain,DC=tld",
-    "searchFilter": "(cn={{username}})"
+    "searchFilter": "(cn={{username}})",
+
+    "domain": "DOMAIN",
+    "domaincontroller": "ldap://some-ldap-server.domain.tld"
   },
   "veda": {
-    "url": "veda-system.domain.tld",
+    "url": "veda-server.domain.tld",
     "port": 80,
     "username": "admin-user-name",
     "password": "password",

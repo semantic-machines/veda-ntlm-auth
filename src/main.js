@@ -3,20 +3,12 @@ const OPTIONS = JSON.parse(fs.readFileSync('./options.json'));
 
 const express = require('express');
 const passport = require('passport');
-
-const WindowsStrategy = require('passport-windowsauth');
 const LdapStrategy = require('passport-ldapauth');
 const bodyParser = require('body-parser');
+const ntlm = require('express-ntlm');
 
 const {getVedaTicket} = require('./veda_auth.js');
 const app = express();
-
-passport.use(new WindowsStrategy({
-  ldap: OPTIONS.ldap,
-}, function (user, done) {
-  console.log(new Date().toISOString(), 'NTLM auto username:', user);
-  done(err, user);
-}));
 
 passport.use(new LdapStrategy({
   server: OPTIONS.ldap,
@@ -25,16 +17,6 @@ passport.use(new LdapStrategy({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(passport.initialize());
-
-app.get('/ntlm',
-  passport.authenticate('WindowsAuthentication'),
-  function (req, res) {
-    const username = req.user.sAMAccountName;
-    console.log(new Date().toISOString(), 'NTLM auto username:', username);
-    getVedaTicket(username)(req, res);
-  },
-);
-
 app.post('/ntlm',
   passport.authenticate('ldapauth', {session: false}),
   function (req, res) {
@@ -43,6 +25,19 @@ app.post('/ntlm',
     getVedaTicket(username)(req, res);
   },
 );
+
+app.get('/ntlm', ntlm(OPTIONS.ldap), function (req, res) {
+  if (!req.headers.authorization) {
+    res.set( 'WWW-Authenticate', 'Negotiate' );
+    res.status(401).send();
+  } else if (req.ntlm.Authenticated === true) {
+    const username = req.ntlm.UserName;
+    console.log(new Date().toISOString(), 'NTLM auto username:', username);
+    getVedaTicket(username)(req, res);
+  } else {
+    req.status(403).send();
+  }
+});
 
 app.listen(OPTIONS.listen);
 

@@ -53,7 +53,6 @@ let auth = {};
 module.exports.getVedaTicket = function (username) {
   return (req, res) => {
     const realIP = req.get('X-Real-IP');
-    console.log(new Date().toISOString(), `Get Veda ticket for user: ${username}, IP: ${realIP}`);
     const params = {
       hostname: OPTIONS.veda.url,
       port: OPTIONS.veda.port,
@@ -65,8 +64,8 @@ module.exports.getVedaTicket = function (username) {
       let body = '';
       response.on('data', (chunk) => body += chunk);
       response.on('end', () => {
-        console.log(new Date().toISOString(), `User ${username} authenticated successfully.`);
         res.json(translate(body));
+        console.log(new Date().toISOString(), `User ${username} authenticated successfully, IP: ${realIP}`);
       });
     }).on('error', (err) => {
       console.error(new Date().toISOString(), `Error: failed to get Veda ticket for user ${username}, ${err}`);
