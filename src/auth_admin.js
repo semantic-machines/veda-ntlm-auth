@@ -3,10 +3,10 @@ const OPTIONS = JSON.parse(fs.readFileSync('./options.json'));
 const {parseAuthResult} = require('./util.js');
 
 const isSecure = OPTIONS.veda.port === 443;
-let http; let cert;
+let http; let ca;
 if (isSecure) {
   http = require('https');
-  cert = OPTIONS.veda.cert && fs.readFileSync(OPTIONS.veda.cert);
+  ca = OPTIONS.veda.ca && fs.readFileSync(OPTIONS.veda.ca);
 } else {
   http = require('http');
 }
@@ -19,7 +19,7 @@ let authAdmin = {};
     port: OPTIONS.veda.port,
     path: `/authenticate?login=${OPTIONS.veda.username}&password=${OPTIONS.veda.password}`,
     method: 'GET',
-    ...(isSecure && cert && {ca: cert}),
+    ...(isSecure && ca && {ca: ca}),
   };
   http.request(params, (response) => {
     let body = '';

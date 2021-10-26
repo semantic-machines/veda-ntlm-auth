@@ -14,9 +14,9 @@ const app = express();
 passport.use(new LdapStrategy({
   server: {
     ...OPTIONS.ldap,
-    ...(isSecure && OPTIONS.ldap.cert && {
+    ...(isSecure && OPTIONS.ldap.ca && {
       tlsOptions: {
-        ca: [fs.readFileSync(OPTIONS.ldap.cert)],
+        ca: [fs.readFileSync(OPTIONS.ldap.ca)],
       },
     }),
   },
@@ -37,9 +37,9 @@ app.post('/ntlm',
 app.get('/ntlm', ntlm({
   domain: OPTIONS.ldap.domain,
   domaincontroller: OPTIONS.ldap.url,
-  ...(isSecure && OPTIONS.ldap.cert && {
+  ...(isSecure && OPTIONS.ldap.ca && {
     tlsOptions: {
-      ca: fs.readFileSync(OPTIONS.ldap.cert),
+      ca: fs.readFileSync(OPTIONS.ldap.ca),
     },
   }),
 }), function (req, res) {

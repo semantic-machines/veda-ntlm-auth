@@ -6,14 +6,14 @@
     "searchBase": "DC=domain,DC=tld",
     "searchFilter": "(cn={{username}})",
     "domain": "DOMAIN.TLD",
-    "cert": "./certificate-authority.crt"
+    "ca": "./certificate-authority.crt"
   },
   "veda": {
     "url": "veda-server.domain.tld",
     "port": 80,
     "username": "admin-user-name",
     "password": "password",
-    "cert": "./certificate-authority.crt"
+    "ca": "./certificate-authority.crt"
   },
   "listen": 8081
 }
