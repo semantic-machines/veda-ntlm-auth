@@ -1,5 +1,6 @@
 const fs = require('fs');
 const OPTIONS = JSON.parse(fs.readFileSync('./options.json'));
+const isSecure = OPTIONS.ldap.url.indexOf('ldaps') === 0;
 
 const express = require('express');
 const passport = require('passport');
@@ -7,11 +8,18 @@ const LdapStrategy = require('passport-ldapauth');
 const bodyParser = require('body-parser');
 const ntlm = require('express-ntlm');
 
-const {getVedaTicket} = require('./veda_auth.js');
+const authUser = require('./auth_user.js');
 const app = express();
 
 passport.use(new LdapStrategy({
-  server: OPTIONS.ldap,
+  server: {
+    ...OPTIONS.ldap,
+    ...(isSecure && OPTIONS.ldap.cert && {
+      tlsOptions: {
+        ca: [fs.readFileSync(OPTIONS.ldap.cert)],
+      },
+    }),
+  },
 }));
 
 app.use(bodyParser.json());
@@ -22,18 +30,26 @@ app.post('/ntlm',
   function (req, res) {
     const username = req.user.sAMAccountName;
     console.log(new Date().toISOString(), 'NTLM form username:', username);
-    getVedaTicket(username)(req, res);
+    authUser(username)(req, res);
   },
 );
 
-app.get('/ntlm', ntlm(OPTIONS.ldap), function (req, res) {
+app.get('/ntlm', ntlm({
+  domain: OPTIONS.ldap.domain,
+  domaincontroller: OPTIONS.ldap.url,
+  ...(isSecure && OPTIONS.ldap.cert && {
+    tlsOptions: {
+      ca: fs.readFileSync(OPTIONS.ldap.cert),
+    },
+  }),
+}), function (req, res) {
   if (!req.headers.authorization) {
     res.set( 'WWW-Authenticate', 'Negotiate' );
     res.status(401).send();
   } else if (req.ntlm.Authenticated === true) {
     const username = req.ntlm.UserName;
     console.log(new Date().toISOString(), 'NTLM auto username:', username);
-    getVedaTicket(username)(req, res);
+    authUser(username)(req, res);
   } else {
     req.status(403).send();
   }

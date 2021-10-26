@@ -5,9 +5,8 @@
     "bindCredentials": "password",
     "searchBase": "DC=domain,DC=tld",
     "searchFilter": "(cn={{username}})",
-
-    "domain": "DOMAIN",
-    "domaincontroller": "ldap://some-ldap-server.domain.tld"
+    "domain": "DOMAIN.TLD",
+    "cert": "./certificate-authority.crt"
   },
   "veda": {
     "url": "veda-server.domain.tld",
