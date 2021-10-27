@@ -12,6 +12,7 @@ module.exports = {
     'sourceType': 'module',
   },
   'rules': {
+    'prefer-rest-params': ['off'],
     'space-before-function-paren': ["error", "always"],
     'max-len': ['off'],
     'camelcase': ['off'],

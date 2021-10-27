@@ -1,5 +1,5 @@
 node_modules/
-cert/
+ca/
 *.geany
 options.json
 package-lock.json
