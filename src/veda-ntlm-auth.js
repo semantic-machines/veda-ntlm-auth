@@ -19,12 +19,16 @@ module.exports.formAuth = function (OPTIONS) {
 
   return [
     bodyParser.urlencoded({extended: false}),
+    function (req, res, next) {
+      console.log(new Date().toISOString(), `NTLM form username: ${req.body.username}`);
+      next();
+    },
     passport.initialize(),
     passport.authenticate('ldapauth', {session: false}),
     function (req, res, next) {
       const username = req.user.sAMAccountName;
+      console.log(new Date().toISOString(), `User ${username} authenticated successfully in LDAP`);
       req.veda = req.veda || {username: username};
-      console.log(new Date().toISOString(), 'NTLM form username:', username);
       next();
     },
     authUser(OPTIONS),

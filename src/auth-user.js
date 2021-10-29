@@ -30,12 +30,12 @@ function getAuthAdmin (OPTIONS, http, isSecure, ca) {
         setTimeout(getAuthAdmin, (authAdmin.end_time - Date.now()) * 0.9, ...args);
       } catch (err) {
         const msg = `Error: Veda admin auth result parsing failed, ${err}`;
-        console.error(new Date().toISOString(), msg);
+        console.log(new Date().toISOString(), msg);
         setTimeout(getAuthAdmin, errorDelay, ...args);
       }
     });
   }).on('error', (err) => {
-    console.error(new Date().toISOString(), `Error: failed to get Veda ticket for admin, ${err}`);
+    console.log(new Date().toISOString(), `Error: failed to get Veda ticket for admin, ${err}`);
     setTimeout(getAuthAdmin, errorDelay, ...args);
   }).end();
 }
@@ -83,16 +83,16 @@ module.exports = function authUser (OPTIONS) {
       response.on('end', () => {
         try {
           res.json(parseAuthResult(result));
-          console.log(new Date().toISOString(), `User ${username} authenticated successfully, IP: ${realIP}`);
+          console.log(new Date().toISOString(), `User ${username} authenticated successfully in Veda, IP: ${realIP}`);
         } catch (err) {
           const msg = `Error: Veda auth result parsing failed, ${err}`;
-          console.error(new Date().toISOString(), msg);
+          console.log(new Date().toISOString(), msg);
           res.status(500).send(msg);
         }
       });
     }).on('error', (err) => {
       const msg = `Error: failed to get Veda ticket for user ${username}, ${err}`;
-      console.error(new Date().toISOString(), msg);
+      console.log(new Date().toISOString(), msg);
       res.status(500).send(msg);
     }).end();
   };
