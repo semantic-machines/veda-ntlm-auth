@@ -8,6 +8,8 @@ const {formAuth, autoAuth} = require('./veda-ntlm-auth.js');
 app.post('/ntlm', formAuth(OPTIONS));
 app.get('/ntlm', autoAuth(OPTIONS));
 
-app.listen(OPTIONS.listen);
-
-console.log(new Date().toISOString(), 'Veda NTLM authentication service started');
+app.listen(
+  OPTIONS.port,
+  OPTIONS.host,
+  () => console.log(new Date().toISOString(), `Veda NTLM authentication service started on ${OPTIONS.host}:${OPTIONS.port}`),
+);
