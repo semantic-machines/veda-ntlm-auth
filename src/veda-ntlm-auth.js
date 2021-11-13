@@ -24,12 +24,18 @@ module.exports.formAuth = function (OPTIONS) {
       next();
     },
     passport.initialize(),
-    passport.authenticate('ldapauth', {session: false}),
     function (req, res, next) {
-      const username = req.user.sAMAccountName;
-      console.log(new Date().toISOString(), `User ${username} authenticated successfully in LDAP`);
-      req.veda = req.veda || {username: username};
-      next();
+      passport.authenticate('ldapauth', {session: false}, function (err, user, info) {
+        if (err) return next(err);
+        if (!user) {
+          console.log(new Date().toISOString(), `Error: failed to authenticate user in LDAP, ${info.message}`);
+          return res.status(401).send(info);
+        }
+        const username = user.sAMAccountName;
+        console.log(new Date().toISOString(), `User ${username} authenticated successfully in LDAP`);
+        req.veda = {username: username};
+        next();
+      })(req, res, next);
     },
     authUser(OPTIONS),
   ];
@@ -54,7 +60,7 @@ module.exports.autoAuth = function (OPTIONS) {
         res.status(401).send();
       } else if (req.ntlm.Authenticated === true) {
         const username = req.ntlm.UserName;
-        req.veda = req.veda || {username: username};
+        req.veda = {username: username};
         console.log(new Date().toISOString(), 'NTLM auto username:', username);
         next();
       } else {

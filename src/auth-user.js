@@ -21,6 +21,12 @@ function getAuthAdmin (OPTIONS, http, isSecure, ca) {
     ...(isSecure && ca && {ca: ca}),
   };
   http.request(params, (response) => {
+    if (response.statusCode !== 200) {
+      const msg = `Error: failed to get Veda ticket for admin`;
+      console.log(new Date().toISOString(), msg);
+      setTimeout(getAuthAdmin, errorDelay, ...args);
+      return;
+    }
     let result = '';
     response.on('data', (chunk) => result += chunk);
     response.on('end', () => {
@@ -35,7 +41,8 @@ function getAuthAdmin (OPTIONS, http, isSecure, ca) {
       }
     });
   }).on('error', (err) => {
-    console.log(new Date().toISOString(), `Error: failed to get Veda ticket for admin, ${err}`);
+    const msg = `Error: failed to get Veda ticket for admin, ${err}`;
+    console.log(new Date().toISOString(), msg);
     setTimeout(getAuthAdmin, errorDelay, ...args);
   }).end();
 }
@@ -78,22 +85,28 @@ module.exports = function authUser (OPTIONS) {
       ...(isSecure && ca && {ca: ca}),
     };
     http.request(params, (response) => {
+      if (response.statusCode !== 200) {
+        const msg = `Error: failed to get Veda ticket for user ${username}`;
+        console.log(new Date().toISOString(), msg);
+        res.status(response.statusCode).send({message: msg});
+        return;
+      }
       let result = '';
       response.on('data', (chunk) => result += chunk);
       response.on('end', () => {
         try {
-          res.json(parseAuthResult(result));
+          res.send(parseAuthResult(result));
           console.log(new Date().toISOString(), `User ${username} authenticated successfully in Veda, IP: ${realIP}`);
         } catch (err) {
           const msg = `Error: Veda auth result parsing failed, ${err}`;
           console.log(new Date().toISOString(), msg);
-          res.status(500).send(msg);
+          res.status(500).send({message: msg});
         }
       });
     }).on('error', (err) => {
       const msg = `Error: failed to get Veda ticket for user ${username}, ${err}`;
       console.log(new Date().toISOString(), msg);
-      res.status(500).send(msg);
+      res.status(500).send({message: msg});
     }).end();
   };
 };
