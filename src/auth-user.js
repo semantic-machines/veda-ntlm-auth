@@ -77,6 +77,12 @@ module.exports = function authUser (OPTIONS) {
   return (req, res) => {
     const realIP = req.get('X-Real-IP');
     const username = req.veda.username;
+    if (!username) {
+      const msg = `Error: username undefined, authentication canceled`;
+      console.log(new Date().toISOString(), msg);
+      res.status(401).send({message: msg});
+      return;
+    }
     const params = {
       method: 'GET',
       hostname: OPTIONS.veda.url,
