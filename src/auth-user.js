@@ -101,7 +101,12 @@ module.exports = function authUser (OPTIONS) {
       response.on('data', (chunk) => result += chunk);
       response.on('end', () => {
         try {
-          res.send(parseAuthResult(result));
+          const authResult = parseAuthResult(result);
+          res.cookie('ticket', authResult.ticket, {
+            httpOnly: true,
+            expires: new Date(authResult.end_time),
+          });
+          res.send(authResult);
           console.log(new Date().toISOString(), `User ${username} authenticated successfully in Veda, IP: ${realIP}`);
         } catch (err) {
           const msg = `Error: Veda auth result parsing failed, ${err}`;
